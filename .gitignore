@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Build/cache artifacts
+build/
+*.spec
+version_info.txt
+dist/
+
+# Logs
+logs/
+logs/*.log
+
+# IDE
+.idea/

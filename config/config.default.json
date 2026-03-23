@@ -1,0 +1,17 @@
+{
+  "watch_roots": [
+    "%USERPROFILE%"
+  ],
+  "recursive": true,
+  "process_directories": false,
+  "debounce_ms": 1000,
+  "retry_count": 5,
+  "retry_delay_ms": 700,
+  "conflict_mode": "skip",
+  "excluded_paths": [
+    "AppData\\Local\\Temp",
+    "AppData\\Local\\Packages",
+    ".git",
+    "node_modules"
+  ]
+}
