@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -15,10 +16,36 @@ def ensure_dir(path: str | Path) -> Path:
     return target
 
 
+def _app_base_dir() -> Path:
+    """실행 기준 디렉터리(exe 폴더 또는 프로젝트 루트)"""
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    # src/utils.py 기준으로 상위 1단계가 프로젝트 루트
+    return Path(__file__).resolve().parents[1]
+
+
+def _fallback_user_log_dir(app_name: str) -> Path:
+    local_appdata = os.environ.get("LOCALAPPDATA")
+    if local_appdata:
+        return Path(local_appdata) / app_name / "logs"
+    return Path.home() / "AppData" / "Local" / app_name / "logs"
+
+
 def setup_logger(log_dir: str | Path = "logs", name: str = "NFDtoNFC") -> logging.Logger:
-    ensure_dir(log_dir)
+    target_log_dir = Path(log_dir)
+    if not target_log_dir.is_absolute():
+        target_log_dir = _app_base_dir() / target_log_dir
+
+    try:
+        ensure_dir(target_log_dir)
+    except PermissionError:
+        # 시작프로그램(레지스트리 Run) 실행 시 CWD가 system32가 될 수 있어
+        # 상대 경로가 시스템 폴더를 가리키면 권한 오류가 발생할 수 있음.
+        target_log_dir = _fallback_user_log_dir(name)
+        ensure_dir(target_log_dir)
+
     timestamp = datetime.now().strftime("%y%m%d-%H%M%S")
-    log_path = Path(log_dir) / f"{name}-log-{timestamp}.log"
+    log_path = target_log_dir / f"{name}-log-{timestamp}.log"
 
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)

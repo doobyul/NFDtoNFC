@@ -23,9 +23,15 @@ class AppConfig:
 DEFAULT_CONFIG_RELATIVE = Path("config/config.default.json")
 
 
+def _app_base_dir() -> Path:
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parents[1]
+
+
 def _resolve_default_config_path() -> Path:
-    # 1) exe와 같은 위치(또는 현재 작업 폴더)의 외부 설정 파일 우선
-    external = Path.cwd() / DEFAULT_CONFIG_RELATIVE
+    # 1) 실행 파일(또는 프로젝트 루트) 기준 외부 설정 파일 우선
+    external = _app_base_dir() / DEFAULT_CONFIG_RELATIVE
     if external.exists():
         return external
 
