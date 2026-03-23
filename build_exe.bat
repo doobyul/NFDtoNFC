@@ -64,9 +64,9 @@ if errorlevel 1 goto :error
 
 echo [2/3] Building executable with PyInstaller...
 if exist assets\icon.ico (
-  pyinstaller --noconfirm --clean --onefile %WINDOW_MODE% --name %EXE_NAME% --icon assets\icon.ico --version-file version_info.txt --add-data "config;config" --add-data "assets;assets" --add-data "VERSION;." --add-data "BUILD_NUMBER;." --hidden-import pystray --hidden-import pystray._win32 --hidden-import PIL --hidden-import PIL.Image --hidden-import PIL.ImageDraw --hidden-import watchdog.events --hidden-import watchdog.observers --collect-submodules pystray src\main.py
+  pyinstaller --noconfirm --clean --onefile %WINDOW_MODE% --name %EXE_NAME% --icon assets\icon.ico --version-file version_info.txt --add-data "config;config" --add-data "assets\icon.ico;assets" --add-data "VERSION;." --add-data "BUILD_NUMBER;." --hidden-import pystray --hidden-import pystray._win32 --hidden-import PIL --hidden-import PIL.Image --hidden-import watchdog.events --hidden-import watchdog.observers src\main.py
 ) else (
-  pyinstaller --noconfirm --clean --onefile %WINDOW_MODE% --name %EXE_NAME% --version-file version_info.txt --add-data "config;config" --add-data "assets;assets" --add-data "VERSION;." --add-data "BUILD_NUMBER;." --hidden-import pystray --hidden-import pystray._win32 --hidden-import PIL --hidden-import PIL.Image --hidden-import PIL.ImageDraw --hidden-import watchdog.events --hidden-import watchdog.observers --collect-submodules pystray src\main.py
+  pyinstaller --noconfirm --clean --onefile %WINDOW_MODE% --name %EXE_NAME% --version-file version_info.txt --add-data "config;config" --add-data "VERSION;." --add-data "BUILD_NUMBER;." --hidden-import pystray --hidden-import pystray._win32 --hidden-import PIL --hidden-import PIL.Image --hidden-import watchdog.events --hidden-import watchdog.observers src\main.py
 )
 if errorlevel 1 goto :error
 

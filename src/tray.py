@@ -36,32 +36,29 @@ def _import_tray_deps():
     try:
         pystray = importlib.import_module("pystray")
         Image = importlib.import_module("PIL.Image")
-        ImageDraw = importlib.import_module("PIL.ImageDraw")
     except ModuleNotFoundError as exc:
         raise ModuleNotFoundError(
             "트레이 의존성(Pillow/pystray) 로드 실패. `pip install -r requirements.txt`를 실행하세요."
         ) from exc
 
-    return pystray, Image, ImageDraw
+    return pystray, Image
 
 
 def _load_icon() -> PILImage:
-    _pystray, Image, ImageDraw = _import_tray_deps()
+    _pystray, Image = _import_tray_deps()
     icon_path = _resolve_icon_path()
     if icon_path and icon_path.exists():
         # 일부 환경에서 .ico 다중 프레임 해석 이슈가 있어 RGBA 64x64로 고정
         return Image.open(icon_path).convert("RGBA").resize((64, 64), Image.Resampling.LANCZOS)
 
-    image = Image.new("RGB", (64, 64), (30, 30, 30))
-    draw = ImageDraw.Draw(image)
-    draw.rectangle((8, 8, 56, 56), outline=(120, 220, 120), width=4)
-    draw.text((22, 20), "N", fill=(120, 220, 120))
+    # Pillow 최소 의존을 위해 ImageDraw 없이 단색 fallback 아이콘 생성
+    image = Image.new("RGBA", (64, 64), (60, 170, 100, 255))
     return image
 
 
 class TrayController:
     def __init__(self, app_name: str, watcher, logger, startup_getter, startup_setter):
-        pystray, _Image, _ImageDraw = _import_tray_deps()
+        pystray, _Image = _import_tray_deps()
         self._pystray = pystray
         self.app_name = app_name
         self.watcher = watcher
