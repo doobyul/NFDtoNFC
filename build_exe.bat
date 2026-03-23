@@ -22,6 +22,14 @@ set /a BUILD_NUM=BUILD_NUM+1
 > BUILD_NUMBER echo %BUILD_NUM%
 
 set EXE_NAME=NFDtoNFC-v%APP_VERSION%-b%BUILD_NUM%
+set EXE_PATH=dist\%EXE_NAME%.exe
+
+rem Code signing options (set these as environment variables before build)
+rem Example:
+rem   set SIGN_PFX_PATH=C:\certs\codesign.pfx
+rem   set SIGN_PFX_PASS=your_password
+rem   set SIGN_TIMESTAMP_URL=http://timestamp.digicert.com
+if "%SIGN_TIMESTAMP_URL%"=="" set SIGN_TIMESTAMP_URL=http://timestamp.digicert.com
 
 > version_info.txt echo VSVersionInfo(
 >> version_info.txt echo   ffi=FixedFileInfo(
@@ -62,8 +70,33 @@ if exist assets\icon.ico (
 )
 if errorlevel 1 goto :error
 
-echo [3/3] Done. Check dist\%EXE_NAME%.exe
+echo [3/4] Build done. Check %EXE_PATH%
+
+echo [4/4] Code signing...
+where signtool >nul 2>nul
+if errorlevel 1 goto :nosigntool
+
+if "%SIGN_PFX_PATH%"=="" goto :nosignconfig
+if not exist "%SIGN_PFX_PATH%" goto :nosignconfig
+
+signtool sign /fd SHA256 /f "%SIGN_PFX_PATH%" /p "%SIGN_PFX_PASS%" /tr "%SIGN_TIMESTAMP_URL%" /td SHA256 "%EXE_PATH%"
+if errorlevel 1 goto :signerror
+
+echo Signed successfully: %EXE_PATH%
 exit /b 0
+
+:nosigntool
+echo Sign skipped: signtool not found. Install Windows SDK to enable code signing.
+exit /b 0
+
+:nosignconfig
+echo Sign skipped: SIGN_PFX_PATH not configured or file not found.
+echo To enable signing, set SIGN_PFX_PATH and SIGN_PFX_PASS before running this script.
+exit /b 0
+
+:signerror
+echo Build succeeded, but code signing failed.
+exit /b 1
 
 :error
 echo Build failed.

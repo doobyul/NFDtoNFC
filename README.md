@@ -155,6 +155,29 @@ NFDtoNFC-v<version>-b<build>.exe
 dist/NFDtoNFC-v1.0.0-b12.exe
 ```
 
+### 코드 서명(Code Signing)
+
+Windows SmartScreen의 "알 수 없는 게시자" 경고를 줄이려면 코드 서명이 필요합니다.
+
+`build_exe.bat`는 아래 환경변수가 설정되어 있으면 빌드 후 자동 서명을 시도합니다.
+
+- `SIGN_PFX_PATH`: 코드서명 인증서(.pfx) 경로
+- `SIGN_PFX_PASS`: 인증서 비밀번호
+- `SIGN_TIMESTAMP_URL`: 타임스탬프 서버 URL (기본: `http://timestamp.digicert.com`)
+
+예시 (CMD):
+
+```bat
+set SIGN_PFX_PATH=C:\certs\codesign.pfx
+set SIGN_PFX_PASS=your_password
+set SIGN_TIMESTAMP_URL=http://timestamp.digicert.com
+build_exe.bat
+```
+
+주의:
+- `signtool`은 Windows SDK 설치가 필요합니다.
+- 인증서 미설정/미설치 시 빌드는 성공하고, 서명 단계만 skip 됩니다.
+
 ---
 
 ## 보안/동작 원칙
